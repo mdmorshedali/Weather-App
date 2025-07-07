@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Weather App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f9f6;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 800px;
+      background: white;
+      margin-top: 40px;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .section {
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 12px;
+      background-color: #e4f8ec;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .temp {
+      font-size: 48px;
+      font-weight: bold;
+      color: #2e8b57;
+    }
+
+    .info {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 18px;
+      color: #555;
+      padding: 40px 0;
+    }
+
+    .error {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .temp {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+  const API_KEY = "bbd37d835c1e4a6f2cbd8a9b0f1b23ab";
+
+  function App() {
+    const [weather, setWeather] = React.useState(null);
+    const [error, setError] = React.useState("");
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            try {
+              const res = await fetch(
+                `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`
+              );
+              if (!res.ok) throw new Error("Failed to fetch weather data");
+              const data = await res.json();
+              setWeather(data);
+              setLoading(false);
+            } catch (err) {
+              setError("Failed to fetch weather data.");
+              setLoading(false);
+            }
+          },
+          (geoErr) => {
+            setError("Location access denied. Please allow location.");
+            setLoading(false);
+          }
+        );
+      } else {
+        setError("Geolocation is not supported in this browser.");
+        setLoading(false);
+      }
+    }, []);
+
+    return (
+      <div className="container">
+        <h1>🌤️ Live Weather Info</h1>
+
+        {loading && <div className="loading">📍 Detecting location and fetching weather...</div>}
+        {error && <div className="error">❌ {error}</div>}
+
+        {weather && !error && (
+          <>
+            <div className="section">
+              <div className="info"><span className="label">Location:</span> {weather.name}, {weather.sys.country}</div>
+              <div className="info"><span className="label">Condition:</span> {weather.weather[0].main} – {weather.weather[0].description}</div>
+            </div>
+
+            <div className="section">
+              <div className="temp">{Math.round(weather.main.temp)}°C</div>
+              <div className="info"><span className="label">Feels Like:</span> {Math.round(weather.main.feels_like)}°C</div>
+              <div className="info"><span className="label">Humidity:</span> {weather.main.humidity}%</div>
+              <div className="info"><span className="label">Pressure:</span> {weather.main.pressure} hPa</div>
+              <div className="info"><span className="label">Wind:</span> {weather.wind.speed} km/h</div>
+            </div>
+
+            <div className="section">
+              <div className="info"><span className="label">Sunrise:</span> {new Date(weather.sys.sunrise * 1000).toLocaleTimeString()}</div>
+              <div className="info"><span className="label">Sunset:</span> {new Date(weather.sys.sunset * 1000).toLocaleTimeString()}</div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(<App />);
+</script>
+</body>
+</html>
