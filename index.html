@@ -3,73 +3,219 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Live Weather App</title>
+  <title>Weather App</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap"/>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
+    :root {
+      --primary-color: #1a73e8;
+      --text-color: #202124;
+      --secondary-text: #5f6368;
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --border-color: #dadce0;
+    }
+    
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      background: #f0f9f6;
-      display: flex;
-      justify-content: center;
     }
-
-    .container {
-      max-width: 800px;
-      background: white;
-      margin-top: 40px;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    
+    body {
+      font-family: 'Google Sans', Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      padding: 16px;
     }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .section {
-      margin: 20px 0;
-      padding: 20px;
+    
+    .weather-app {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--card-bg);
       border-radius: 12px;
-      background-color: #e4f8ec;
+      box-shadow: 0 1px 6px rgba(32, 33, 36, 0.12);
+      overflow: hidden;
     }
-
-    .label {
-      font-weight: bold;
-      color: #333;
+    
+    .location-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-
-    .temp {
-      font-size: 48px;
-      font-weight: bold;
-      color: #2e8b57;
-    }
-
-    .info {
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-
-    .loading {
-      text-align: center;
+    
+    .location-title {
       font-size: 18px;
-      color: #555;
-      padding: 40px 0;
+      font-weight: 500;
     }
-
-    .error {
+    
+    .use-precise-location {
+      color: var(--primary-color);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .current-weather {
+      padding: 20px 16px;
       text-align: center;
-      color: red;
-      font-weight: bold;
     }
-
-    @media (max-width: 600px) {
-      .temp {
-        font-size: 36px;
+    
+    .current-temp {
+      font-size: 48px;
+      font-weight: 400;
+      margin: 8px 0;
+    }
+    
+    .current-condition {
+      font-size: 16px;
+      color: var(--secondary-text);
+      margin-bottom: 16px;
+    }
+    
+    .weather-details {
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .detail-item {
+      text-align: center;
+    }
+    
+    .detail-label {
+      font-size: 12px;
+      color: var(--secondary-text);
+      margin-bottom: 4px;
+    }
+    
+    .detail-value {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .hourly-forecast {
+      padding: 16px;
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .hourly-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 24px;
+      padding-bottom: 8px;
+    }
+    
+    .hour-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 40px;
+    }
+    
+    .hour-temp {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 8px 0;
+    }
+    
+    .hour-time {
+      font-size: 12px;
+      color: var(--secondary-text);
+    }
+    
+    .daily-forecast {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .daily-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .daily-item:last-child {
+      border-bottom: none;
+    }
+    
+    .day-name {
+      font-size: 14px;
+      width: 80px;
+    }
+    
+    .day-temps {
+      display: flex;
+      gap: 24px;
+    }
+    
+    .day-high {
+      font-weight: 500;
+      width: 30px;
+      text-align: right;
+    }
+    
+    .day-low {
+      color: var(--secondary-text);
+      width: 30px;
+      text-align: right;
+    }
+    
+    .footer {
+      padding: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--secondary-text);
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .loading, .error {
+      padding: 40px 16px;
+      text-align: center;
+    }
+    
+    .error {
+      color: #d93025;
+    }
+    
+    .permission-request {
+      padding: 40px 16px;
+      text-align: center;
+    }
+    
+    .permission-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-top: 16px;
+      cursor: pointer;
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+      }
+      
+      .weather-app {
+        border-radius: 0;
       }
     }
   </style>
@@ -78,71 +224,218 @@
 <div id="root"></div>
 
 <script type="text/babel">
-
-  const API_KEY = "bbd37d835c1e4a6f2cbd8a9b0f1b23ab";
-
   function App() {
     const [weather, setWeather] = React.useState(null);
     const [error, setError] = React.useState("");
     const [loading, setLoading] = React.useState(true);
+    const [locationName, setLocationName] = React.useState("");
+    const [usePreciseLocation, setUsePreciseLocation] = React.useState(false);
+    const [showPermissionRequest, setShowPermissionRequest] = React.useState(false);
 
-    React.useEffect(() => {
+    const fetchWeather = async (lat, lon) => {
+      try {
+        // First get location name
+        const locationRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+        const locationData = await locationRes.json();
+        const name = locationData.address?.village || 
+                     locationData.address?.town || 
+                     locationData.address?.city || 
+                     "Your Location";
+        setLocationName(name);
+        
+        // Then get weather data
+        const weatherRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`
+        );
+        
+        if (!weatherRes.ok) throw new Error("Failed to fetch weather data");
+        
+        const weatherData = await weatherRes.json();
+        setWeather(weatherData);
+        setLoading(false);
+        setShowPermissionRequest(false);
+        setUsePreciseLocation(true);
+      } catch (err) {
+        setError("Failed to fetch weather data. Please try again later.");
+        setLoading(false);
+      }
+    };
+
+    const requestLocationPermission = () => {
+      setShowPermissionRequest(false);
+      setLoading(true);
+      setError("");
+      
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
             const { latitude, longitude } = position.coords;
-            try {
-              const res = await fetch(
-                `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`
-              );
-              if (!res.ok) throw new Error("Failed to fetch weather data");
-              const data = await res.json();
-              setWeather(data);
-              setLoading(false);
-            } catch (err) {
-              setError("Failed to fetch weather data.");
-              setLoading(false);
-            }
+            await fetchWeather(latitude, longitude);
           },
           (geoErr) => {
-            setError("Location access denied. Please allow location.");
-            setLoading(false);
+            console.error("Geolocation error:", geoErr);
+            setError("Location access denied. Using default location.");
+            fetchWeather(21.7356, 87.6356); // Basudebpur coordinates as fallback
+          },
+          { 
+            timeout: 10000,
+            enableHighAccuracy: true 
           }
         );
       } else {
-        setError("Geolocation is not supported in this browser.");
-        setLoading(false);
+        setError("Geolocation not supported. Using default location.");
+        fetchWeather(21.7356, 87.6356); // Basudebpur coordinates as fallback
+      }
+    };
+
+    React.useEffect(() => {
+      // Check if we already have permission
+      if (navigator.permissions) {
+        navigator.permissions.query({name: 'geolocation'}).then((result) => {
+          if (result.state === 'granted') {
+            requestLocationPermission();
+          } else {
+            setShowPermissionRequest(true);
+          }
+        });
+      } else {
+        // For browsers that don't support permissions API
+        setShowPermissionRequest(true);
       }
     }, []);
 
+    const getWeatherCondition = (code) => {
+      const weatherCodes = {
+        0: "Clear sky",
+        1: "Mainly clear",
+        2: "Partly cloudy",
+        3: "Overcast",
+        45: "Fog",
+        48: "Depositing rime fog",
+        51: "Light drizzle",
+        53: "Moderate drizzle",
+        55: "Dense drizzle",
+        56: "Light freezing drizzle",
+        57: "Dense freezing drizzle",
+        61: "Slight rain",
+        63: "Moderate rain",
+        65: "Heavy rain",
+        66: "Light freezing rain",
+        67: "Heavy freezing rain",
+        71: "Slight snow fall",
+        73: "Moderate snow fall",
+        75: "Heavy snow fall",
+        77: "Snow grains",
+        80: "Slight rain showers",
+        81: "Moderate rain showers",
+        82: "Violent rain showers",
+        85: "Slight snow showers",
+        86: "Heavy snow showers",
+        95: "Thunderstorm",
+        96: "Thunderstorm with slight hail",
+        99: "Thunderstorm with heavy hail"
+      };
+      return weatherCodes[code] || "Unknown weather condition";
+    };
+
+    const formatHour = (timeStr) => {
+      const hour = new Date(timeStr).getHours();
+      return hour === 0 ? "12 AM" : 
+             hour < 12 ? `${hour} AM` : 
+             hour === 12 ? "12 PM" : 
+             `${hour - 12} PM`;
+    };
+
+    const formatDay = (dateStr) => {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const date = new Date(dateStr);
+      return days[date.getDay()];
+    };
+
     return (
-      <div className="container">
-        <h1>🌤️ Live Weather Info</h1>
-
-        {loading && <div className="loading">📍 Detecting location and fetching weather...</div>}
-        {error && <div className="error">❌ {error}</div>}
-
-        {weather && !error && (
+      <div className="weather-app">
+        {showPermissionRequest ? (
+          <div className="permission-request">
+            <p>To show accurate weather information, we need access to your location.</p>
+            <button className="permission-btn" onClick={requestLocationPermission}>
+              Allow Location Access
+            </button>
+          </div>
+        ) : loading ? (
+          <div className="loading">Loading weather data...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : weather ? (
           <>
-            <div className="section">
-              <div className="info"><span className="label">Location:</span> {weather.name}, {weather.sys.country}</div>
-              <div className="info"><span className="label">Condition:</span> {weather.weather[0].main} – {weather.weather[0].description}</div>
+            <div className="location-header">
+              <div className="location-title">{locationName}</div>
+              {!usePreciseLocation && (
+                <div className="use-precise-location" onClick={requestLocationPermission}>
+                  Use precise location
+                </div>
+              )}
             </div>
-
-            <div className="section">
-              <div className="temp">{Math.round(weather.main.temp)}°C</div>
-              <div className="info"><span className="label">Feels Like:</span> {Math.round(weather.main.feels_like)}°C</div>
-              <div className="info"><span className="label">Humidity:</span> {weather.main.humidity}%</div>
-              <div className="info"><span className="label">Pressure:</span> {weather.main.pressure} hPa</div>
-              <div className="info"><span className="label">Wind:</span> {weather.wind.speed} km/h</div>
+            
+            <div className="current-weather">
+              <div className="current-temp">{Math.round(weather.current.temperature_2m)}°C</div>
+              <div className="current-condition">
+                {getWeatherCondition(weather.current.weather_code)}
+              </div>
+              
+              <div className="weather-details">
+                <div className="detail-item">
+                  <div className="detail-label">Precipitation</div>
+                  <div className="detail-value">{weather.current.precipitation}%</div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Humidity</div>
+                  <div className="detail-value">{weather.current.relative_humidity_2m}%</div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Wind</div>
+                  <div className="detail-value">{weather.current.wind_speed_10m} km/h</div>
+                </div>
+              </div>
             </div>
-
-            <div className="section">
-              <div className="info"><span className="label">Sunrise:</span> {new Date(weather.sys.sunrise * 1000).toLocaleTimeString()}</div>
-              <div className="info"><span className="label">Sunset:</span> {new Date(weather.sys.sunset * 1000).toLocaleTimeString()}</div>
+            
+            <div className="hourly-forecast">
+              <div className="section-title">
+                <span>Temperature</span>
+                <span>Precipitation</span>
+                <span>Wind</span>
+              </div>
+              <div className="hourly-scroll">
+                {weather.hourly.time.slice(0, 8).map((time, index) => (
+                  <div className="hour-item" key={time}>
+                    <div className="hour-temp">{Math.round(weather.hourly.temperature_2m[index])}°</div>
+                    <div className="hour-time">{formatHour(time)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="daily-forecast">
+              <div className="section-title">8-day forecast</div>
+              {weather.daily.time.map((day, index) => (
+                <div className="daily-item" key={day}>
+                  <div className="day-name">
+                    {index === 0 ? 'Today' : formatDay(day)}
+                  </div>
+                  <div className="day-temps">
+                    <div className="day-high">{Math.round(weather.daily.temperature_2m_max[index])}°</div>
+                    <div className="day-low">{Math.round(weather.daily.temperature_2m_min[index])}°</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="footer">
+              Weather data • Feedback
             </div>
           </>
-        )}
+        ) : null}
       </div>
     );
   }
