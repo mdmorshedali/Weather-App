@@ -3,150 +3,247 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Weather App</title>
+  <title>Live Weather Forecast</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.6.6/css/flag-icons.min.css"/>
   <style>
     :root {
-      --primary-color: #1a73e8;
-      --text-color: #202124;
-      --secondary-text: #5f6368;
-      --bg-color: #f8f9fa;
+      --primary-color: #3b82f6;
+      --text-color: #1f2937;
+      --secondary-text: #6b7280;
+      --bg-color: #f9fafb;
       --card-bg: #ffffff;
-      --border-color: #dadce0;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      --border-color: #e5e7eb;
+      --highlight-color: #eff6ff;
+      --success-color: #10b981;
+      --error-color: #ef4444;
     }
     
     body {
-      font-family: 'Google Sans', Arial, sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
       background: var(--bg-color);
       color: var(--text-color);
       min-height: 100vh;
-      padding: 16px;
     }
     
-    .weather-app {
+    .app-container {
       max-width: 600px;
       margin: 0 auto;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 1px 6px rgba(32, 33, 36, 0.12);
-      overflow: hidden;
+      padding: 20px;
     }
     
-    .location-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .header p {
+      color: var(--secondary-text);
+      font-size: 14px;
+    }
+    
+    .search-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+    
+    .search-input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .suggestions {
+      position: absolute;
+      width: 100%;
+      max-height: 300px;
+      overflow-y: auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-top: 5px;
+      z-index: 10;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .suggestion-item {
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+    
+    .suggestion-item:hover {
+      background: var(--highlight-color);
+    }
+    
+    .weather-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+    
+    .location-time {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 15px;
     }
     
-    .location-title {
+    .location {
+      display: flex;
+      align-items: center;
       font-size: 18px;
       font-weight: 500;
     }
     
-    .use-precise-location {
-      color: var(--primary-color);
+    .flag {
+      margin-right: 8px;
+      font-size: 24px;
+    }
+    
+    .current-time {
+      color: var(--secondary-text);
       font-size: 14px;
-      cursor: pointer;
     }
     
     .current-weather {
-      padding: 20px 16px;
-      text-align: center;
-    }
-    
-    .current-temp {
-      font-size: 48px;
-      font-weight: 400;
-      margin: 8px 0;
-    }
-    
-    .current-condition {
-      font-size: 16px;
-      color: var(--secondary-text);
-      margin-bottom: 16px;
-    }
-    
-    .weather-details {
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-      border-top: 1px solid var(--border-color);
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .detail-item {
-      text-align: center;
-    }
-    
-    .detail-label {
-      font-size: 12px;
-      color: var(--secondary-text);
-      margin-bottom: 4px;
-    }
-    
-    .detail-value {
-      font-size: 14px;
-      font-weight: 500;
-    }
-    
-    .hourly-forecast {
-      padding: 16px;
-    }
-    
-    .section-title {
-      font-size: 16px;
-      font-weight: 500;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-    }
-    
-    .hourly-scroll {
-      display: flex;
-      overflow-x: auto;
-      gap: 24px;
-      padding-bottom: 8px;
-    }
-    
-    .hour-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-width: 40px;
+      padding: 20px 0;
     }
     
-    .hour-temp {
-      font-size: 14px;
-      font-weight: 500;
-      margin: 8px 0;
+    .current-temp {
+      font-size: 64px;
+      font-weight: 300;
+      margin: 10px 0;
+      position: relative;
     }
     
-    .hour-time {
-      font-size: 12px;
+    .current-temp::after {
+      content: "°C";
+      position: absolute;
+      font-size: 24px;
+      top: 10px;
+    }
+    
+    .weather-condition {
+      font-size: 18px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .weather-details {
+      width: 100%;
+      border-top: 1px solid var(--border-color);
+      padding-top: 15px;
+    }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+    
+    .detail-label {
       color: var(--secondary-text);
     }
     
+    .detail-value {
+      font-weight: 500;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+    
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--secondary-text);
+      border-bottom: 2px solid transparent;
+    }
+    
+    .tab.active {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      font-weight: 500;
+    }
+    
+    .forecast-container {
+      min-height: 200px;
+    }
+    
+    .hourly-forecast {
+      width: 100%;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 10px;
+    }
+    
+    .hourly-item {
+      display: inline-block;
+      padding: 10px 15px;
+      text-align: center;
+      border-right: 1px solid var(--border-color);
+    }
+    
+    .hourly-item:last-child {
+      border-right: none;
+    }
+    
+    .hourly-time {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .hourly-temp {
+      font-size: 16px;
+      margin: 5px 0;
+    }
+    
+    .hourly-precip {
+      color: var(--secondary-text);
+      font-size: 14px;
+    }
+    
+    .weather-icon {
+      font-size: 20px;
+      margin: 5px 0;
+    }
+    
     .daily-forecast {
-      padding: 16px;
-      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     
     .daily-item {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
+      padding: 8px 0;
       border-bottom: 1px solid var(--border-color);
     }
     
@@ -154,68 +251,60 @@
       border-bottom: none;
     }
     
-    .day-name {
-      font-size: 14px;
-      width: 80px;
-    }
-    
-    .day-temps {
-      display: flex;
-      gap: 24px;
-    }
-    
-    .day-high {
+    .daily-date {
       font-weight: 500;
-      width: 30px;
+      width: 120px;
+    }
+    
+    .daily-weather {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .daily-temps {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .daily-high {
+      font-weight: 500;
+      width: 40px;
       text-align: right;
     }
     
-    .day-low {
+    .daily-low {
       color: var(--secondary-text);
-      width: 30px;
+      width: 40px;
       text-align: right;
     }
     
-    .footer {
-      padding: 16px;
+    .loading {
       text-align: center;
-      font-size: 12px;
+      padding: 40px 0;
       color: var(--secondary-text);
-      border-top: 1px solid var(--border-color);
-    }
-    
-    .loading, .error {
-      padding: 40px 16px;
-      text-align: center;
     }
     
     .error {
-      color: #d93025;
-    }
-    
-    .permission-request {
-      padding: 40px 16px;
       text-align: center;
-    }
-    
-    .permission-btn {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 10px 24px;
-      border-radius: 4px;
-      font-size: 14px;
-      margin-top: 16px;
-      cursor: pointer;
+      padding: 20px;
+      color: var(--error-color);
+      background: #fee2e2;
+      border-radius: 8px;
+      margin-bottom: 20px;
     }
     
     @media (max-width: 480px) {
-      body {
-        padding: 0;
+      .app-container {
+        padding: 15px;
       }
       
-      .weather-app {
-        border-radius: 0;
+      .current-temp {
+        font-size: 48px;
+      }
+      
+      .hourly-item {
+        padding: 10px;
       }
     }
   </style>
@@ -226,213 +315,376 @@
 <script type="text/babel">
   function App() {
     const [weather, setWeather] = React.useState(null);
-    const [error, setError] = React.useState("");
     const [loading, setLoading] = React.useState(true);
-    const [locationName, setLocationName] = React.useState("");
-    const [usePreciseLocation, setUsePreciseLocation] = React.useState(false);
-    const [showPermissionRequest, setShowPermissionRequest] = React.useState(false);
-
-    const fetchWeather = async (lat, lon) => {
+    const [error, setError] = React.useState(null);
+    const [searchQuery, setSearchQuery] = React.useState("");
+    const [suggestions, setSuggestions] = React.useState([]);
+    const [showSuggestions, setShowSuggestions] = React.useState(false);
+    const [activeTab, setActiveTab] = React.useState("hourly");
+    const [currentTime, setCurrentTime] = React.useState(new Date());
+    
+    // Auto-refresh every 1 minute
+    React.useEffect(() => {
+      const refreshTimer = setInterval(() => {
+        if (weather?.location) {
+          fetchWeather(weather.location);
+        }
+      }, 60000);
+      return () => clearInterval(refreshTimer);
+    }, [weather]);
+    
+    // Update time every second
+    React.useEffect(() => {
+      const timer = setInterval(() => {
+        setCurrentTime(new Date());
+      }, 1000);
+      return () => clearInterval(timer);
+    }, []);
+    
+    // Fetch weather for default location (Rajshahi) on first load
+    React.useEffect(() => {
+      fetchWeather("Rajshahi");
+    }, []);
+    
+    // Fetch location suggestions
+    const fetchSuggestions = async (query) => {
+      if (query.length < 1) {
+        setSuggestions([]);
+        return;
+      }
+      
       try {
-        // First get location name
-        const locationRes = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        const res = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5`
         );
-        const locationData = await locationRes.json();
-        const name = locationData.address?.village || 
-                     locationData.address?.town || 
-                     locationData.address?.city || 
-                     "Your Location";
-        setLocationName(name);
+        const data = await res.json();
+        
+        if (data.results) {
+          setSuggestions(data.results);
+        } else {
+          setSuggestions([]);
+        }
+      } catch (err) {
+        console.error("Error fetching suggestions:", err);
+        setSuggestions([]);
+      }
+    };
+    
+    const fetchWeather = async (location) => {
+      setLoading(true);
+      setError(null);
+      try {
+        // First get coordinates for the location
+        const geoRes = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1`
+        );
+        const geoData = await geoRes.json();
+        
+        if (!geoData.results || geoData.results.length === 0) {
+          throw new Error("Location not found");
+        }
+        
+        const { latitude, longitude, name, country_code, timezone } = geoData.results[0];
         
         // Then get weather data
         const weatherRes = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,snowfall,weather_code,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,precipitation_probability,weather_code,rain,snowfall&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=${timezone || 'auto'}`
         );
         
         if (!weatherRes.ok) throw new Error("Failed to fetch weather data");
         
         const weatherData = await weatherRes.json();
-        setWeather(weatherData);
-        setLoading(false);
-        setShowPermissionRequest(false);
-        setUsePreciseLocation(true);
-      } catch (err) {
-        setError("Failed to fetch weather data. Please try again later.");
-        setLoading(false);
-      }
-    };
-
-    const requestLocationPermission = () => {
-      setShowPermissionRequest(false);
-      setLoading(true);
-      setError("");
-      
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            await fetchWeather(latitude, longitude);
-          },
-          (geoErr) => {
-            console.error("Geolocation error:", geoErr);
-            setError("Location access denied. Using default location.");
-            fetchWeather(21.7356, 87.6356); // Basudebpur coordinates as fallback
-          },
-          { 
-            timeout: 10000,
-            enableHighAccuracy: true 
-          }
-        );
-      } else {
-        setError("Geolocation not supported. Using default location.");
-        fetchWeather(21.7356, 87.6356); // Basudebpur coordinates as fallback
-      }
-    };
-
-    React.useEffect(() => {
-      // Check if we already have permission
-      if (navigator.permissions) {
-        navigator.permissions.query({name: 'geolocation'}).then((result) => {
-          if (result.state === 'granted') {
-            requestLocationPermission();
-          } else {
-            setShowPermissionRequest(true);
-          }
+        
+        setWeather({
+          ...weatherData,
+          location: name,
+          country_code: country_code.toLowerCase(),
+          timezone: timezone
         });
-      } else {
-        // For browsers that don't support permissions API
-        setShowPermissionRequest(true);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+        setShowSuggestions(false);
       }
-    }, []);
-
+    };
+    
+    const handleSearchChange = (e) => {
+      const query = e.target.value;
+      setSearchQuery(query);
+      fetchSuggestions(query);
+    };
+    
+    const handleSuggestionClick = (suggestion) => {
+      setSearchQuery(suggestion.name);
+      fetchWeather(suggestion.name);
+    };
+    
+    const handleSearchSubmit = (e) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        fetchWeather(searchQuery);
+      }
+    };
+    
+    const getWeatherIcon = (code) => {
+      const icons = {
+        0: "☀️",  // Clear sky
+        1: "🌤️",  // Mainly clear
+        2: "⛅",  // Partly cloudy
+        3: "☁️",  // Overcast
+        45: "🌫️", // Fog
+        48: "🌫️", // Fog
+        51: "🌦️", // Drizzle
+        53: "🌦️", // Drizzle
+        55: "🌧️", // Drizzle
+        61: "🌧️", // Rain
+        63: "🌧️", // Rain
+        65: "🌧️", // Rain
+        71: "❄️", // Snow
+        73: "❄️", // Snow
+        75: "❄️", // Snow
+        77: "❄️", // Snow grains
+        80: "🌦️", // Rain showers
+        81: "🌧️", // Rain showers
+        82: "🌧️", // Rain showers
+        85: "❄️", // Snow showers
+        86: "❄️", // Snow showers
+        95: "⛈️",  // Thunderstorm
+        96: "⛈️",  // Thunderstorm with hail
+        99: "⛈️"   // Thunderstorm with heavy hail
+      };
+      return icons[code] || "🌤️";
+    };
+    
     const getWeatherCondition = (code) => {
-      const weatherCodes = {
+      const conditions = {
         0: "Clear sky",
         1: "Mainly clear",
         2: "Partly cloudy",
         3: "Overcast",
         45: "Fog",
-        48: "Depositing rime fog",
+        48: "Fog",
         51: "Light drizzle",
         53: "Moderate drizzle",
-        55: "Dense drizzle",
+        55: "Heavy drizzle",
         56: "Light freezing drizzle",
-        57: "Dense freezing drizzle",
-        61: "Slight rain",
+        57: "Heavy freezing drizzle",
+        61: "Light rain",
         63: "Moderate rain",
         65: "Heavy rain",
         66: "Light freezing rain",
         67: "Heavy freezing rain",
-        71: "Slight snow fall",
-        73: "Moderate snow fall",
-        75: "Heavy snow fall",
+        71: "Light snow",
+        73: "Moderate snow",
+        75: "Heavy snow",
         77: "Snow grains",
-        80: "Slight rain showers",
+        80: "Light rain showers",
         81: "Moderate rain showers",
-        82: "Violent rain showers",
-        85: "Slight snow showers",
+        82: "Heavy rain showers",
+        85: "Light snow showers",
         86: "Heavy snow showers",
         95: "Thunderstorm",
-        96: "Thunderstorm with slight hail",
+        96: "Thunderstorm with hail",
         99: "Thunderstorm with heavy hail"
       };
-      return weatherCodes[code] || "Unknown weather condition";
+      return conditions[code] || "Unknown weather condition";
     };
-
-    const formatHour = (timeStr) => {
-      const hour = new Date(timeStr).getHours();
-      return hour === 0 ? "12 AM" : 
-             hour < 12 ? `${hour} AM` : 
-             hour === 12 ? "12 PM" : 
-             `${hour - 12} PM`;
-    };
-
-    const formatDay = (dateStr) => {
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    const formatTime = (dateStr) => {
       const date = new Date(dateStr);
-      return days[date.getDay()];
+      return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    };
+    
+    const formatDate = (dateStr) => {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric'
+      });
+    };
+    
+    // Get current hour index in hourly data
+    const getCurrentHourIndex = () => {
+      if (!weather || !weather.hourly || !weather.hourly.time) return 0;
+      
+      const now = new Date();
+      for (let i = 0; i < weather.hourly.time.length; i++) {
+        const hourTime = new Date(weather.hourly.time[i]);
+        if (hourTime.getHours() === now.getHours()) {
+          return i;
+        }
+      }
+      return 0;
+    };
+    
+    // Get hourly data from current time to 11 PM
+    const getHourlyForecastData = () => {
+      if (!weather || !weather.hourly) return [];
+      
+      const currentIndex = getCurrentHourIndex();
+      const hourlyData = [];
+      
+      for (let i = currentIndex; i < weather.hourly.time.length; i++) {
+        const hourTime = new Date(weather.hourly.time[i]);
+        if (hourTime.getHours() > 23) break; // Stop at 11 PM
+        
+        hourlyData.push({
+          time: weather.hourly.time[i],
+          temp: weather.hourly.temperature_2m[i],
+          code: weather.hourly.weather_code[i],
+          precip: weather.hourly.precipitation_probability[i],
+          rain: weather.hourly.rain[i]
+        });
+      }
+      
+      return hourlyData;
     };
 
     return (
-      <div className="weather-app">
-        {showPermissionRequest ? (
-          <div className="permission-request">
-            <p>To show accurate weather information, we need access to your location.</p>
-            <button className="permission-btn" onClick={requestLocationPermission}>
-              Allow Location Access
-            </button>
-          </div>
-        ) : loading ? (
-          <div className="loading">Loading weather data...</div>
-        ) : error ? (
-          <div className="error">{error}</div>
-        ) : weather ? (
-          <>
-            <div className="location-header">
-              <div className="location-title">{locationName}</div>
-              {!usePreciseLocation && (
-                <div className="use-precise-location" onClick={requestLocationPermission}>
-                  Use precise location
-                </div>
-              )}
-            </div>
-            
-            <div className="current-weather">
-              <div className="current-temp">{Math.round(weather.current.temperature_2m)}°C</div>
-              <div className="current-condition">
-                {getWeatherCondition(weather.current.weather_code)}
-              </div>
-              
-              <div className="weather-details">
-                <div className="detail-item">
-                  <div className="detail-label">Precipitation</div>
-                  <div className="detail-value">{weather.current.precipitation}%</div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">Humidity</div>
-                  <div className="detail-value">{weather.current.relative_humidity_2m}%</div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">Wind</div>
-                  <div className="detail-value">{weather.current.wind_speed_10m} km/h</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="hourly-forecast">
-              <div className="section-title">
-                <span>Temperature</span>
-                <span>Precipitation</span>
-                <span>Wind</span>
-              </div>
-              <div className="hourly-scroll">
-                {weather.hourly.time.slice(0, 8).map((time, index) => (
-                  <div className="hour-item" key={time}>
-                    <div className="hour-temp">{Math.round(weather.hourly.temperature_2m[index])}°</div>
-                    <div className="hour-time">{formatHour(time)}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="daily-forecast">
-              <div className="section-title">8-day forecast</div>
-              {weather.daily.time.map((day, index) => (
-                <div className="daily-item" key={day}>
-                  <div className="day-name">
-                    {index === 0 ? 'Today' : formatDay(day)}
-                  </div>
-                  <div className="day-temps">
-                    <div className="day-high">{Math.round(weather.daily.temperature_2m_max[index])}°</div>
-                    <div className="day-low">{Math.round(weather.daily.temperature_2m_min[index])}°</div>
-                  </div>
+      <div className="app-container">
+        <div className="header">
+          <h1>Hour-by-Hour Forecast</h1>
+          <p>Time/General • Weather • Time Zone • DST Changes • Sun & Moon</p>
+        </div>
+        
+        <form onSubmit={handleSearchSubmit} className="search-container">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search for city or place..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          />
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="suggestions">
+              {suggestions.map((suggestion, index) => (
+                <div 
+                  key={index} 
+                  className="suggestion-item"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion.name}, {suggestion.country_code.toUpperCase()}
                 </div>
               ))}
             </div>
+          )}
+        </form>
+        
+        {error && <div className="error">{error}</div>}
+        
+        {loading ? (
+          <div className="loading">Loading weather data...</div>
+        ) : weather ? (
+          <>
+            <div className="weather-card">
+              <div className="location-time">
+                <div className="location">
+                  <span className={`fi fi-${weather.country_code} flag`}></span>
+                  Hour-by-Hour Forecast for {weather.location}, {weather.country_code.toUpperCase()}
+                </div>
+                <div className="current-time">
+                  {currentTime.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true 
+                  })}
+                </div>
+              </div>
+              
+              <div className="current-weather">
+                <div className="current-temp">
+                  {Math.round(weather.current.temperature_2m)}
+                </div>
+                <div className="weather-condition">
+                  {getWeatherIcon(weather.current.weather_code)} {getWeatherCondition(weather.current.weather_code)}
+                </div>
+              </div>
+              
+              <div className="weather-details">
+                <div className="detail-row">
+                  <span className="detail-label">Feels Like</span>
+                  <span className="detail-value">{Math.round(weather.current.apparent_temperature)}°C</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Humidity</span>
+                  <span className="detail-value">{weather.current.relative_humidity_2m}%</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Precipitation</span>
+                  <span className="detail-value">
+                    Rain: {weather.current.rain || 0}mm • Snow: {weather.current.snowfall || 0}mm
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Chance of Rain</span>
+                  <span className="detail-value">
+                    {weather.hourly.precipitation_probability[getCurrentHourIndex()]}%
+                  </span>
+                </div>
+              </div>
+            </div>
             
-            <div className="footer">
-              Weather data • Feedback
+            <div className="tabs">
+              <div 
+                className={`tab ${activeTab === 'hourly' ? 'active' : ''}`}
+                onClick={() => setActiveTab('hourly')}
+              >
+                Weather Hourly
+              </div>
+              <div 
+                className={`tab ${activeTab === '8day' ? 'active' : ''}`}
+                onClick={() => setActiveTab('8day')}
+              >
+                8 Day Forecast
+              </div>
+            </div>
+            
+            <div className="forecast-container">
+              {activeTab === 'hourly' && (
+                <div className="weather-card">
+                  <div className="hourly-forecast">
+                    {getHourlyForecastData().map((hour, index) => (
+                      <div key={index} className="hourly-item">
+                        <div className="hourly-time">{formatTime(hour.time)}</div>
+                        <div className="weather-icon">{getWeatherIcon(hour.code)}</div>
+                        <div className="hourly-temp">{Math.round(hour.temp)}°</div>
+                        <div className="hourly-precip">{hour.precip}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {activeTab === '8day' && (
+                <div className="weather-card">
+                  <div className="daily-forecast">
+                    {weather.daily.time.slice(0, 8).map((day, index) => (
+                      <div key={day} className="daily-item">
+                        <div className="daily-date">{formatDate(day)}</div>
+                        <div className="daily-weather">
+                          <span className="weather-icon">
+                            {getWeatherIcon(weather.daily.weather_code[index])}
+                          </span>
+                          <span>{getWeatherCondition(weather.daily.weather_code[index])}</span>
+                        </div>
+                        <div className="daily-temps">
+                          <div className="daily-high">{Math.round(weather.daily.temperature_2m_max[index])}°</div>
+                          <div className="daily-low">{Math.round(weather.daily.temperature_2m_min[index])}°</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </>
         ) : null}
